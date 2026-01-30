@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="maintenance_request_view_form_inherit_horometer" model="ir.ui.view">
+        <field name="name">maintenance.request.form.inherit.horometer</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//sheet/group" position="after">
+                <group string="Control de Horómetro y Tiempos">
+                    <group>
+                        <field name="work_hours_start"/>
+                        <field name="work_hours_end"/>
+                    </group>
+                    <group>
+                        <field name="execution_start_date"/>
+                        <field name="execution_end_date"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Evidencias y Firma">
+                    <group string="Firma del Cliente">
+                        <field name="customer_signature" widget="signature" style="height: 100px; width: 400px"/>
+                    </group>
+                    <group string="Fotos de Evidencia">
+                        <field name="evidence_ids" widget="many2many_binary" class="oe_inline"/>                  
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
