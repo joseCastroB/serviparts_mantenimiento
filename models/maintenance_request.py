@@ -14,6 +14,16 @@ class MaintenanceRequest(models.Model):
     # Campo para la firma digital
     customer_signature = fields.Binary(string="Firma del Cliente", attachment=True)
 
+    def action_clean_signature(self):
+        "Limpia la firma del cliente y recarga la vista"
+        for record in self: 
+            record.customer_signature = False
+        return{
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
+
+
     # Campo para múltiples fotos (Evidencias)
     evidence_ids = fields.Many2many(
         'ir.attachment',

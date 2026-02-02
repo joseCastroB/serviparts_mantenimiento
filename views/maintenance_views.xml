@@ -22,7 +22,17 @@
             <xpath expr="//sheet/notebook" position="inside">
                 <page string="Evidencias y Firma">
                     <group string="Firma del Cliente">
-                        <field name="customer_signature" widget="signature" style="height: 100px; width: 400px"/>
+                        <field  name="customer_signature" widget="signature" nolabel="1" 
+                                colspan="2" style="height: 100px; width: 400px; border: 1px solid #ccc;"/>
+                        <div colspan="2" style="margin-top: 25px;">
+                            <button name="action_clean_signature"
+                                    type="object"
+                                    string="Limpiar Firma"
+                                    icon="fa-trash"
+                                    class="btn btn-secondary btn-sm"
+                                    confirm="¿Estás seguro que quieres eliminar la firma?"
+                            />
+                        </div>
                     </group>
                     <group string="Fotos de Evidencia">
                         <field name="evidence_ids" widget="many2many_binary" class="oe_inline"/>                  
