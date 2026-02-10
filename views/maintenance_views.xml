@@ -6,12 +6,70 @@
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
         <field name="arch" type="xml">
             
+            <xpath expr="//field[@name='schedule_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='duration']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='email_cc']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='name']" position="after">
+                <label for="request_title" class="oe_edit_only"/>
+                <h1>
+                    <field name="request_title" placeholder="Ej. Falla en motor principal..."/>                
+                </h1>
+            </xpath>
+
+            <xpath expr="//field[@name='equipment_id']" position="replace">
+                <field name="partner_id" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"/>
+                <field  name="equipment_id"
+                        domain="[('partner_id', '=', partner_id)]"
+                        context="{'default_partner_id': partner_id}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="replace">
+                <field name="technician_id" widget="many2many_tags" placeholder="Seleccionar técnicos..."/>
+                <field name="hour_type" widget="radio" options="{'horizontal': true}"/>
+
+                <separator string="Checklist de Servicio"/>
+                <field name="checklist_ids">
+                    <list editable="bottom">
+                        <field name="is_done" widget="boolean_toggle" width="30px"/> 
+                        <field name="name" string="Tarea a realizar"/>
+                    </list>
+                </field>
+
+                <separator string="Pendientes"/>
+                <field name="has_pending" widget="radio" options="{'horizontal': true}"/>
+
+                <field  name="pending_comments" 
+                        placeholder="Detalla aquí los repuestos faltantes o tareas pendientes... "
+                        invisible="has_pending != 'yes' "/>
+                
+            </xpath>
+
+            <xpath expr="//field[@name='maintenance_type']" position="after">
+                <separator string="Estado Inicial del Equipo"/>
+                <field name="equipment_found_status" widget="radio" options="{'horizontal': true}"/>
+                
+                <separator string="Estado Final del Equipo"/>
+                <field name="equipment_final_status" widget="radio" options="{'horizontal': true}"/>   
+
+                <separator string="Califiación de Servicio"/>
+                <field name="service_rating" widget="radio" options="{'horizontal': true}"/>
+            </xpath>
+
             <xpath expr="//sheet/group" position="after">
                 <group string="Control de Horómetro y Tiempos">
-                    <group>
-                        <field name="work_hours_start"/>
-                        <field name="work_hours_end"/>
-                    </group>
                     <group>
                         <field name="execution_start_date"/>
                         <field name="execution_end_date"/>
@@ -22,6 +80,12 @@
             <xpath expr="//sheet/notebook" position="inside">
                 <page string="Evidencias y Firma">
                     <group>
+                        <group>
+                            <field name="signed_by_customer" placeholder="Nombre de quien recibe..."/>
+                        </group>
+                        <group>
+                            <field name="signed_by_technician" placeholder="Nombre del técnico responsable..."/>
+                        </group>
                         <group string="Conformidad">
                             <div colspan="2" class="d-flex justify-content-between align-items-center">
                                 <h3 class="mb0">Firma del Cliente</h3>

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="paperformat_maintenance_jh" model="report.paperformat">
+        <field name="name">Formato JH (Márgenes Estrechos)</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>    <field name="margin_bottom">10</field> <field name="margin_left">7</field>    
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_maintenance_jh" model="ir.actions.report">
+        <field name="name">Reporte de Servicio (Formato JH)</field>
+        <field name="model">maintenance.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">serviparts_mantenimiento.report_jh_template</field>
+        <field name="report_file">serviparts_mantenimiento.report_jh_template</field>
+        <field name="print_report_name">'Reporte Servicio - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_maintenance_request"/>
+        <field name="binding_type">report</field>
+
+        <field name="paperformat_id" ref="paperformat_maintenance_jh"/>
+    </record>
+
+    <template id="report_jh_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    
+                    <style type="text/css">
+                        .jh-box { border: 2px solid black; padding: 5px; }
+                        .jh-header-box { border: 3px solid black; padding: 10px; }
+                        .jh-bold { font-weight: bold; }
+                        .jh-table thead th { border: 2px solid black; background-color: #f0f0f0; text-align: center; }
+                        .jh-table tbody td { border: 2px solid black; padding: 5px; }
+                        .jh-title-red { color: red; font-weight: bold; font-size: 18px; text-align: center; }
+                    </style>
+
+                    <div class="page">
+                        <div class="row mb-2">
+                            <div class="col-4 jh-header-box d-flex align-items-center justify-content-center">
+                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 80px; max-width: 100%;" alt="Logo"/>
+                            </div>
+                            <div class="col-5 jh-header-box d-flex align-items-center justify-content-center">
+                                <div class="jh-title-red">
+                                    REPORTE DE SERVICIO
+                                    <br/>
+                                    <t t-if="o.maintenance_type == 'corrective'">CORRECTIVO</t>
+                                    <t t-if="o.maintenance_type == 'preventive'">PREVENTIVO</t>
+                                </div>
+                            </div>
+                            <div class="col-3 jh-header-box d-flex align-items-center justify-content-center">
+                                <h2 class="jh-bold"><span t-field="o.name"/></h2>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-12 jh-box">
+                                <span class="jh-bold" style="color:red;">DESCRIPCION DE LLAMADA : </span>
+                                <span t-field="o.request_title" class="jh-bold"/>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2" style="border: 2px solid black; margin-left: 0px; margin-right: 0px;">
+                            <div class="col-6 pt-2 pb-2 px-3" style="border-right: 2px solid black;">
+                                <strong>NRO OV :</strong> <span></span><br/>
+                                <strong>Cliente:</strong> <span t-field="o.partner_id.name"/><br/>
+                                <strong>Ubicación:</strong> <span t-if="o.equipment_id.location_chars" t-field="o.equipment_id.location_chars"/><span t-else="">(Sin ubicación)</span><br/>
+                                <strong>Horómetro:</strong> <span t-field="o.equipment_id.horometer_reading"/><br/>
+                                <strong>F. Ejecución:</strong> <span t-field="o.equipment_id.execution_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                            </div>
+                            <div class="col-6 pt-2 pb-2 px-3">
+                                <strong>Equipo:</strong> <span t-field="o.equipment_id.name"/><br/>
+                                <strong>Marca:</strong> <span t-field="o.equipment_id.partner_id.name"/><br/>
+                                <strong>Modelo:</strong> <span t-field="o.equipment_id.model"/><br/>
+                                <strong>Serie:</strong> <span t-field="o.equipment_id.serial_no"/><br/>
+                                <strong>Alias:</strong> <span t-field="o.equipment_id.alias"/><br/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm jh-table mb-2" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%;">Tecnicos</th>
+                                    <th style="width: 10%;">TIPO DE HORA</th>
+                                    <th style="width: 25%;">H. Inicio</th>
+                                    <th style="width: 25%;">H. Fin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <t t-foreach="o.technician_id" t-as="tech">
+                                            <span t-field="tech.name"/><t t-if="not tech_last">, </t>
+                                        </t>
+                                    </td>
+                                    <td class="text-center text-uppercase">
+                                        <span t-field="o.hour_type"/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="o.execution_start_date" t-options='{"format": "dd/MM/yyyy - HH:mm a"}'/>
+                                    </td>
+                                    <td class="text-center">
+                                        <span t-field="o.execution_end_date" t-options='{"format": "dd/MM/yyyy - HH:mm a"}'/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="mb-2 p-2 jh-box d-flex align-items-center">
+                            <strong style="margin-right: 50px;">¿Cómo encontró el equipo?</strong>
+                            
+                            <div class="mr-4 d-flex align-items-center" style="margin-right: 60px;">
+                                <span t-if="o.equipment_found_status == 'operative'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span>Operativo</span>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span t-if="o.equipment_found_status == 'inoperative'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span>Inoperativo</span>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm jh-table mb-4" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-left pl-2">DESCRIPCION DE TAREAS</th>
+                                    <th style="width: 100px;">Check</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.checklist_ids" t-as="line">
+                                    <td class="text-left pl-2">
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <strong t-if="line.is_done">X</strong>
+                                    </td>
+                                </tr>
+                                <tr t-if="not o.checklist_ids" style="height: 150px;"><td></td><td></td></tr>
+                            </tbody>
+                        </table>
+
+                        <div t-if="o.evidence_ids" class="jh-box p-2">
+                            <div class="row">
+                                <t t-foreach="o.evidence_ids" t-as="photo">
+                                    <div class="col-6 mb-3 text-center">
+                                        <img t-att-src="image_data_uri(photo.datas)" 
+                                             style="max-height: 320px; max-width: 95%; border: 1px solid #ccc; padding: 4px; margin: 0 auto; display: block;"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="row" style="height: 20px;"></div>
+
+                        <div class="mb-2 p-2 jh-box d-flex align-items-center">
+                            <strong style="margin-right: 50px;">¿Cómo se deja el equipo?</strong>
+                            
+                            <div class="d-flex align-items-center" style="margin-right: 60px;">
+                                <span t-if="o.equipment_final_status == 'operative'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">Operativo</span>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span t-if="o.equipment_final_status == 'inoperative'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">Inoperativo</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-2 p-2 jh-box d-flex align-items-center">
+                            <strong style="margin-right: 50px;">¿Encontró Pendientes?</strong>
+                            
+                            <div class="d-flex align-items-center" style="margin-right: 60px;">
+                                <span t-if="o.has_pending == 'yes'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">SI</span>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span t-if="o.has_pending == 'no'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">NO</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-2 jh-box" style="min-height: 80px;">
+                            <strong class="pl-1">Pendientes / Comentarios:</strong>
+                            <div class="pl-2 pt-1">
+                                <span t-field="o.pending_comments"/>
+                            </div>
+                        </div>
+
+                        <div class="mb-2 p-2 jh-box d-flex align-items-center">
+                            <div class="mr-3 text-center" style="line-height: 1.1;">
+                                <strong style="text-decoration: underline;">EN</strong><br/>
+                                <strong style="text-decoration: underline;">GENERAL</strong>
+                            </div>
+                            
+                            <strong style="margin-right: 50px; margin-left: 50px;">¿Cómo califica el servicio brindado?</strong>
+
+                            <div class="d-flex align-items-center" style="margin-right: 40px;">
+                                <span t-if="o.service_rating == 'good'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">Bueno</span>
+                            </div>
+
+                            <div class="d-flex align-items-center" style="margin-right: 40px;">
+                                <span t-if="o.service_rating == 'regular'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">Regular</span>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <span t-if="o.service_rating == 'bad'" class="fa fa-check-square-o fa-lg mr-1"/>
+                                <span t-else="" class="fa fa-square-o fa-lg mr-1"/>
+                                <span class="ml-1">Malo</span>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5" style="page-break-inside: avoid;">
+                            
+                            <div class="col-6">
+                                <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px;">
+                                    <img t-if="o.customer_signature" t-att-src="image_data_uri(o.customer_signature)" style="max-height: 80px; max-width: 90%;"/>
+                                </div>
+                                
+                                <div class="text-left" style="width: 250px;">
+                                    <span t-field="o.partner_id.name" style="text-transform: uppercase;"/>
+                                </div>
+
+                                <div style="border-bottom: 1px solid black; margin: 2px 0; width: 250px;"></div>
+
+                                <div class="text-left" style="font-size: 11px; width: 250px;">Nombre y firma del cliente</div>
+                                <div class="text-left" style="font-size: 11px; width: 250px;">
+                                    <strong>Contacto Cliente/Técnico:</strong> <span t-field="o.signed_by_customer"/>
+                                </div>
+                                
+                                <div class="text-center font-weight-bold mt-2" style="width: 250px;">CLIENTE</div>
+                            </div>
+
+                            <div class="col-6">
+                                <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px; width: 250px; margin-left: auto;">
+                                    <span t-if="not o.customer_signature" t-field="o.signed_by_technician" style="text-transform: uppercase;"/>
+                                </div>
+
+                                <div class="text-left" style="width: 250px; margin-left: auto;">
+                                    <span t-field="o.company_id.name" style="text-transform: uppercase;"/>
+                                </div>
+
+                                <div style="border-bottom: 1px solid black; margin: 2px 0 2px auto; width: 250px;"></div>
+
+                                <div class="text-left" style="font-size: 11px; text-transform: uppercase; width: 250px; margin-left: auto;">
+                                    <span t-field="o.signed_by_technician"/>
+                                </div>
+
+                                <div class="text-center font-weight-bold mt-4" style="width: 250px; margin-left: auto;">TECNICO</div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
