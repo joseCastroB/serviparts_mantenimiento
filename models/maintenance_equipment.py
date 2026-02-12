@@ -6,9 +6,9 @@ class MaintenanceEquipment(models.Model):
     # ---------------------------------------------------------------
     # ELIMINAR ESTE ARCHIVO ANTES DE SUBIR A PRODUCCIÓN
     # ES SOLO UN PARCHE PARA ENTORNO LOCAL
-    repair_count = fields.Integer(string='Reparaciones', default=0)    
+    # repair_count = fields.Integer(string='Reparaciones', default=0)    
 
-    brand = fields.Char(string='Marca')
+    # brand = fields.Char(string='Marca')
 
     # ---------------------------------------------------------------
 
